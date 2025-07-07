@@ -25,13 +25,20 @@ def load_model_and_scaler():
         if os.path.exists(model_path) and os.path.exists(scaler_path):
             model = joblib.load(model_path)
             scaler = joblib.load(scaler_path)
+            print("✅ Model and scaler loaded successfully!")
             return True
         else:
-            print("Model files not found. Please train the model first.")
+            print("❌ Model files not found. Please train the model first.")
             return False
     except Exception as e:
-        print(f"Error loading model: {e}")
+        print(f"❌ Error loading model: {e}")
         return False
+
+# Load model and scaler on app startup (crucial for deployment)
+print("🚀 Initializing Rock vs Mine Prediction Web Interface...")
+model_loaded = load_model_and_scaler()
+if not model_loaded:
+    print("⚠️ Warning: Model not loaded. App will return errors for predictions.")
 
 @app.route('/')
 def index():
@@ -42,6 +49,13 @@ def index():
 def predict():
     """Prediction endpoint"""
     try:
+        # Check if model is loaded
+        if model is None or scaler is None:
+            return jsonify({
+                'error': 'Model not available. Please ensure the model is trained and deployed correctly.',
+                'status': 'model_not_loaded'
+            }), 503
+        
         # Get features from request
         features = request.json.get('features', [])
         
@@ -92,25 +106,25 @@ def predict():
 @app.route('/health')
 def health():
     """Health check endpoint"""
+    model_info = None
+    if model is not None:
+        model_info = {
+            'type': type(model).__name__,
+            'has_predict_proba': hasattr(model, 'predict_proba')
+        }
+    
     return jsonify({
-        'status': 'healthy',
+        'status': 'healthy' if model is not None and scaler is not None else 'degraded',
         'model_loaded': model is not None,
-        'scaler_loaded': scaler is not None
+        'scaler_loaded': scaler is not None,
+        'model_info': model_info,
+        'message': 'All systems operational' if model is not None and scaler is not None else 'Model not loaded - predictions unavailable'
     })
 
 if __name__ == '__main__':
-    print("🚀 Starting Rock vs Mine Prediction Web Interface...")
+    print("🌐 Starting web server locally...")
+    print("🔗 Visit http://localhost:5000 to use the app")
     
-    # Load model and scaler
-    if load_model_and_scaler():
-        print("✅ Model and scaler loaded successfully!")
-        print("🌐 Starting web server...")
-        print("🔗 Server will start on the configured port")
-        
-        # Get port from environment variable (for deployment) or use 5000 for local
-        port = int(os.environ.get('PORT', 5000))
-        app.run(debug=False, host='0.0.0.0', port=port)
-    else:
-        print("❌ Failed to load model. Please train the model first by running:")
-        print("   python main.py")
-        print("   or the Jupyter notebook: notebooks/01_data_exploration.ipynb")
+    # Get port from environment variable (for deployment) or use 5000 for local
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
