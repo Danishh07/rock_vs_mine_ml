@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock vs Mine Prediction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .input-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-input {
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .feature-input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .result-section {
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .result-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .result-text {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .confidence {
+            font-size: 1.1em;
+            color: #666;
+        }
+        
+        .rock {
+            border-color: #8B4513;
+            background: #f5f5dc;
+        }
+        
+        .mine {
+            border-color: #FF6B6B;
+            background: #ffe6e6;
+        }
+        
+        .examples {
+            margin-top: 40px;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        
+        .examples h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .example-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2196F3;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌊 Rock vs Mine Prediction</h1>
+            <p>SONAR Signal Classification using Machine Learning</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <h3>Enter SONAR Features (60 values)</h3>
+                <p style="text-align: center; margin-bottom: 20px; color: #666;">
+                    Enter 60 SONAR signal values (0.0 to 1.0) representing energy at different frequencies.<br>
+                    💡 <strong>Tip:</strong> Use the example buttons or Random generator for realistic patterns!
+                </p>
+                
+                <div class="input-grid" id="featureGrid">
+                    <!-- Feature inputs will be generated by JavaScript -->
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="predict()">🔮 Predict</button>
+                    <button class="btn btn-secondary" onclick="clearInputs()">🧹 Clear</button>
+                    <button class="btn btn-secondary" onclick="fillRandom()">🎲 Random</button>
+                </div>
+            </div>
+            
+            <div class="result-section" id="resultSection">
+                <div class="result-icon">🤔</div>
+                <div class="result-text">Ready for Prediction</div>
+                <div class="confidence">Enter SONAR features and click Predict</div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div>Analyzing SONAR signal...</div>
+            </div>
+            
+            <div class="examples">
+                <h3>📋 Try Example Data</h3>
+                <div class="example-buttons">
+                    <button class="btn btn-success" onclick="loadExample('rock')">🗿 Rock Example</button>
+                    <button class="btn btn-success" onclick="loadExample('mine')">💣 Mine Example</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for examples
+        const examples = {
+            rock: [
+                0.0200, 0.0371, 0.0428, 0.0207, 0.0954, 0.0986, 0.1539, 0.1601,
+                0.3109, 0.2111, 0.1609, 0.1582, 0.2238, 0.0645, 0.0660, 0.2273,
+                0.3100, 0.2999, 0.5078, 0.4797, 0.5783, 0.5071, 0.4328, 0.5550,
+                0.6711, 0.6415, 0.7104, 0.8080, 0.6791, 0.3857, 0.1307, 0.2604,
+                0.5121, 0.7547, 0.8537, 0.8507, 0.6692, 0.6097, 0.4943, 0.2744,
+                0.0510, 0.2834, 0.2825, 0.4256, 0.2641, 0.1386, 0.1051, 0.1343,
+                0.0383, 0.0324, 0.0232, 0.0027, 0.0065, 0.0159, 0.0072, 0.0167,
+                0.0180, 0.0084, 0.0090, 0.0032
+            ],
+            mine: [
+                0.0491, 0.0279, 0.0592, 0.1270, 0.1772, 0.1908, 0.2217, 0.0768,
+                0.1246, 0.2028, 0.0947, 0.2497, 0.2209, 0.3195, 0.3340, 0.3323,
+                0.2780, 0.2975, 0.2948, 0.1729, 0.3264, 0.3834, 0.3523, 0.5410,
+                0.5228, 0.4475, 0.5340, 0.5323, 0.3907, 0.3456, 0.4091, 0.4639,
+                0.5580, 0.5727, 0.6355, 0.7563, 0.6903, 0.6176, 0.5379, 0.5622,
+                0.6508, 0.4797, 0.3736, 0.2804, 0.1982, 0.2438, 0.1789, 0.1706,
+                0.0762, 0.0238, 0.0268, 0.0081, 0.0129, 0.0161, 0.0063, 0.0119,
+                0.0194, 0.0140, 0.0332, 0.0439
+            ]
+        };
+
+        // Initialize the page
+        function initializePage() {
+            const grid = document.getElementById('featureGrid');
+            
+            // Create 60 input fields
+            for (let i = 0; i < 60; i++) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.step = '0.0001';
+                input.min = '0';
+                input.max = '1';
+                input.className = 'feature-input';
+                input.placeholder = `F${i + 1}`;
+                input.id = `feature${i}`;
+                grid.appendChild(input);
+            }
+        }
+
+        // Load example data
+        function loadExample(type) {
+            const data = examples[type];
+            
+            for (let i = 0; i < 60; i++) {
+                document.getElementById(`feature${i}`).value = data[i].toFixed(4);
+            }
+            
+            // Show visual feedback
+            const resultSection = document.getElementById('resultSection');
+            resultSection.className = 'result-section';
+            
+            if (type === 'rock') {
+                resultSection.innerHTML = `
+                    <div class="result-icon">🗿</div>
+                    <div class="result-text">Rock Example Loaded</div>
+                    <div class="confidence">Click Predict to classify this sample</div>
+                `;
+            } else {
+                resultSection.innerHTML = `
+                    <div class="result-icon">💣</div>
+                    <div class="result-text">Mine Example Loaded</div>
+                    <div class="confidence">Click Predict to classify this sample</div>
+                `;
+            }
+        }
+
+        // Clear all inputs
+        function clearInputs() {
+            for (let i = 0; i < 60; i++) {
+                document.getElementById(`feature${i}`).value = '';
+            }
+            
+            const resultSection = document.getElementById('resultSection');
+            resultSection.className = 'result-section';
+            resultSection.innerHTML = `
+                <div class="result-icon">🤔</div>
+                <div class="result-text">Ready for Prediction</div>
+                <div class="confidence">Enter SONAR features and click Predict</div>
+            `;
+        }
+
+        // Fill with random values
+        function fillRandom() {
+            // Create more realistic random data by varying from example patterns
+            const baseExample = Math.random() < 0.5 ? examples.rock : examples.mine;
+            
+            for (let i = 0; i < 60; i++) {
+                // Add some variation to the base example (±20% variation)
+                const variation = (Math.random() - 0.5) * 0.4; // -0.2 to +0.2
+                let newValue = baseExample[i] * (1 + variation);
+                
+                // Keep within reasonable bounds (0 to 1)
+                newValue = Math.max(0, Math.min(1, newValue));
+                
+                document.getElementById(`feature${i}`).value = newValue.toFixed(4);
+            }
+            
+            // Show feedback
+            const resultSection = document.getElementById('resultSection');
+            resultSection.className = 'result-section';
+            resultSection.innerHTML = `
+                <div class="result-icon">🎲</div>
+                <div class="result-text">Random Sample Generated</div>
+                <div class="confidence">Based on realistic SONAR patterns. Click Predict to classify!</div>
+            `;
+        }
+
+        // Make prediction
+        async function predict() {
+            const features = [];
+            
+            // Collect all feature values
+            for (let i = 0; i < 60; i++) {
+                const value = document.getElementById(`feature${i}`).value;
+                if (value === '') {
+                    alert(`Please enter a value for Feature ${i + 1}`);
+                    return;
+                }
+                features.push(parseFloat(value));
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultSection').style.display = 'none';
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ features: features })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayResult(result);
+                } else {
+                    throw new Error(result.error || 'Prediction failed');
+                }
+                
+            } catch (error) {
+                displayError(error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('resultSection').style.display = 'flex';
+            }
+        }
+
+        // Display prediction result
+        function displayResult(result) {
+            const resultSection = document.getElementById('resultSection');
+            
+            const isRock = result.prediction === 'Rock';
+            const icon = isRock ? '🗿' : '💣';
+            const className = isRock ? 'result-section rock' : 'result-section mine';
+            
+            let confidenceText = '';
+            if (result.confidence) {
+                confidenceText = `Confidence: ${(result.confidence * 100).toFixed(1)}%`;
+                
+                if (result.probabilities) {
+                    confidenceText += `<br>Rock: ${(result.probabilities.Rock * 100).toFixed(1)}% | Mine: ${(result.probabilities.Mine * 100).toFixed(1)}%`;
+                }
+            }
+            
+            resultSection.className = className;
+            resultSection.innerHTML = `
+                <div class="result-icon">${icon}</div>
+                <div class="result-text">Prediction: ${result.prediction}</div>
+                <div class="confidence">${confidenceText}</div>
+            `;
+        }
+
+        // Display error
+        function displayError(message) {
+            const resultSection = document.getElementById('resultSection');
+            resultSection.className = 'result-section';
+            resultSection.innerHTML = `
+                <div class="result-icon">❌</div>
+                <div class="result-text">Error</div>
+                <div class="error">${message}</div>
+            `;
+        }
+
+        // Initialize page when loaded
+        document.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+
+# Virtual environments
+venv/
+env/
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Model files
+models/trained_models/
+results/plots/
+results/metrics/
+
+# Data files
+# data/sonar.csv
+
+# Flask
+instance/
+.webassets-cache
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# VS Code workspace files
+*.code-workspace
