@@ -17,8 +17,7 @@ This project implements a complete machine learning pipeline for classifying SON
 ```
 Rock vs Mine Prediction/
 ├── 📊 data/                          # Dataset folder
-│   ├── sonar.csv                     # SONAR dataset
-│   └── README_dataset.txt            # Dataset information
+│   └── sonar.csv                     # SONAR dataset
 ├── 📓 notebooks/                     # Jupyter notebooks
 │   └── 01_data_exploration.ipynb     # Complete analysis notebook
 ├── 🐍 src/                           # Python modules
@@ -26,17 +25,19 @@ Rock vs Mine Prediction/
 │   ├── model_training.py            # ML model training
 │   ├── model_evaluation.py          # Model evaluation metrics
 │   └── prediction.py                # Prediction utilities
-├── 🤖 models/                       # Trained models
+├── 🤖 models/                       # Trained models (generated)
 │   └── trained_models/              # Saved model files
-├── 📈 results/                      # Output results
+├── 📈 results/                      # Output results (generated)
 │   ├── plots/                        # Generated visualizations
 │   └── metrics/                      # Performance metrics
 ├── 🌐 templates/                    # Web interface templates
 │   └── index.html                    # Main web page
 ├── 📄 main.py                       # Main execution script
-├── 🔧 setup.py                      # Project setup script
 ├── 🌐 web_app.py                    # Web application
 ├── 📋 requirements.txt              # Python dependencies
+├── 🚀 Procfile                      # Deployment configuration
+├── � runtime.txt                   # Python version for deployment
+├── 🔧 build.sh                      # Build script for deployment
 └── 📖 README.md                     # Project documentation
 ```
 
@@ -50,9 +51,6 @@ Rock vs Mine Prediction/
 ### Step 2: Set Up Environment
 ```powershell
 # Install dependencies
-python setup.py
-
-# Or manually install
 pip install -r requirements.txt
 ```
 
@@ -75,6 +73,10 @@ jupyter notebook notebooks/01_data_exploration.ipynb
 python web_app.py
 # Open http://localhost:5000 in your browser
 ```
+
+## 🌐 Live Demo
+
+🔗 **Try the deployed app**: [https://rock-vs-mine-ml.onrender.com/](https://rock-vs-mine-ml.onrender.com/)
 
 ## 📊 What the Project Does
 
@@ -134,7 +136,6 @@ After completing this project, you'll understand:
 4. **Feature Engineering**: How preprocessing affects model performance
 5. **Model Deployment**: Creating user-friendly interfaces for ML models
 6. **Best Practices**: Code organization, documentation, reproducibility
-
 
 ## 🤝 Contributing
 
