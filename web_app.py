@@ -105,8 +105,11 @@ if __name__ == '__main__':
     if load_model_and_scaler():
         print("✅ Model and scaler loaded successfully!")
         print("🌐 Starting web server...")
-        print("🔗 Open http://localhost:5000 in your browser")
-        app.run(debug=True, host='0.0.0.0', port=5000)
+        print("🔗 Server will start on the configured port")
+        
+        # Get port from environment variable (for deployment) or use 5000 for local
+        port = int(os.environ.get('PORT', 5000))
+        app.run(debug=False, host='0.0.0.0', port=port)
     else:
         print("❌ Failed to load model. Please train the model first by running:")
         print("   python main.py")
