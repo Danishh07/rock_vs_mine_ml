@@ -6,8 +6,6 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.neural_network import MLPClassifier
-import xgboost as xgb
 from sklearn.model_selection import GridSearchCV
 import joblib
 import os
@@ -104,70 +102,6 @@ def train_random_forest(X_train, y_train, optimize=True):
         rf = RandomForestClassifier(n_estimators=100, random_state=42)
         rf.fit(X_train, y_train)
         return rf
-
-def train_neural_network(X_train, y_train, optimize=True):
-    """
-    Train Neural Network model
-    
-    Args:
-        X_train: Training features
-        y_train: Training labels
-        optimize (bool): Whether to perform hyperparameter tuning
-        
-    Returns:
-        sklearn model: Trained Neural Network model
-    """
-    if optimize:
-        # Hyperparameter tuning
-        param_grid = {
-            'hidden_layer_sizes': [(50,), (100,), (50, 50), (100, 50)],
-            'activation': ['relu', 'tanh'],
-            'alpha': [0.0001, 0.001, 0.01],
-            'learning_rate': ['constant', 'adaptive']
-        }
-        
-        nn = MLPClassifier(random_state=42, max_iter=1000)
-        grid_search = GridSearchCV(nn, param_grid, cv=5, scoring='accuracy', n_jobs=-1)
-        grid_search.fit(X_train, y_train)
-        
-        print(f"  Best NN parameters: {grid_search.best_params_}")
-        return grid_search.best_estimator_
-    else:
-        nn = MLPClassifier(hidden_layer_sizes=(100,), random_state=42, max_iter=1000)
-        nn.fit(X_train, y_train)
-        return nn
-
-def train_xgboost(X_train, y_train, optimize=True):
-    """
-    Train XGBoost model
-    
-    Args:
-        X_train: Training features
-        y_train: Training labels
-        optimize (bool): Whether to perform hyperparameter tuning
-        
-    Returns:
-        xgboost model: Trained XGBoost model
-    """
-    if optimize:
-        # Hyperparameter tuning
-        param_grid = {
-            'n_estimators': [100, 200, 300],
-            'learning_rate': [0.01, 0.1, 0.2],
-            'max_depth': [3, 4, 5, 6],
-            'subsample': [0.8, 0.9, 1.0]
-        }
-        
-        xgb_model = xgb.XGBClassifier(random_state=42, eval_metric='logloss')
-        grid_search = GridSearchCV(xgb_model, param_grid, cv=5, scoring='accuracy', n_jobs=-1)
-        grid_search.fit(X_train, y_train)
-        
-        print(f"  Best XGB parameters: {grid_search.best_params_}")
-        return grid_search.best_estimator_
-    else:
-        xgb_model = xgb.XGBClassifier(random_state=42, eval_metric='logloss')
-        xgb_model.fit(X_train, y_train)
-        return xgb_model
 
 def train_multiple_models(X_train, y_train, optimize=False):
     """
