@@ -62,35 +62,25 @@ def predict():
         if len(features) != 60:
             return jsonify({'error': 'Please provide exactly 60 features'}), 400
         
-        # Debug: Print some statistics about the input
-        print(f"🔍 DEBUG: Input features stats:")
-        print(f"   Min: {min(features):.4f}, Max: {max(features):.4f}")
-        print(f"   Mean: {np.mean(features):.4f}, Std: {np.std(features):.4f}")
-        print(f"   First 5 features: {features[:5]}")
-        
         # Convert to numpy array and scale
         features_array = np.array(features).reshape(1, -1)
         
         if scaler is not None:
             features_scaled = scaler.transform(features_array)
-            print(f"   After scaling - Min: {features_scaled.min():.4f}, Max: {features_scaled.max():.4f}")
         else:
             features_scaled = features_array
         
-        # Make prediction using probabilities for consistency (fixes SVM issue)
+        # Make prediction using probabilities for consistency
         if hasattr(model, 'predict_proba'):
             proba = model.predict_proba(features_scaled)[0]
             prediction = np.argmax(proba)  # Use probabilities for final prediction
             probabilities = {'Rock': float(proba[0]), 'Mine': float(proba[1])}
             confidence = float(max(proba))
-            print(f"   Probabilities: Rock={proba[0]:.4f}, Mine={proba[1]:.4f}")
-            print(f"   Using probability-based prediction: {prediction} ({'Mine' if prediction == 1 else 'Rock'})")
         else:
             # Fallback for models without probabilities
             prediction = model.predict(features_scaled)[0]
             probabilities = None
             confidence = None
-            print(f"   Direct prediction: {prediction} ({'Mine' if prediction == 1 else 'Rock'})")
         
         predicted_label = 'Mine' if prediction == 1 else 'Rock'
         
@@ -122,9 +112,6 @@ def health():
     })
 
 if __name__ == '__main__':
-    print("🌐 Starting web server locally...")
-    print("🔗 Visit http://localhost:5000 to use the app")
-    
     # Get port from environment variable (for deployment) or use 5000 for local
     port = int(os.environ.get('PORT', 5000))
-    app.run(debug=True, host='0.0.0.0', port=port)
+    app.run(debug=False, host='0.0.0.0', port=port)
